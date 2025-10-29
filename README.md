@@ -7,14 +7,22 @@ It provides a fast, keyboard-driven interface for navigating directories, managi
 
 - **Written in C++17** using only the standard library
 - **Dual-panel interface** (left and right panels)
+- **Panel switching using TAB**
+- **File operations: copy, delete, mkdir**
+- **Real-time key monitoring with multithreading**
 - **File and directory listing** with clear `[DIR]` markers
 -  **Navigation shortcuts**
    - **Backspace + Enter** --> go up one directory
    - **ESC** --> exit
    - **Numeric selection** --> open a file or enter a directory
 -  **Automatic screen refresh** when changing directories
--  **Cross-platform** (Windows, Linux, macOS – uses `std::filesystem`)
+-  **Cross-platform** (Windows, Linux – uses `std::filesystem`)
 
+---
+
+### Screenshot
+Here's a preview of NavigatorX in action:
+![NavigatorX Screenshot](docs/screenshots/navigatorx_dual_panel.png)
 ---
 
 ##   Technologies
