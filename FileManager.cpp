@@ -11,6 +11,7 @@
 #include <atomic>
 
 #include "FileManager.h"
+#include "WindowsFileSystem.h"
 #include "Globals.h"
 
 
@@ -65,37 +66,78 @@ std::string FileManager::get_input_immediate() {
 }
 
 void FileManager::run() {
-    system("cls"); // Use 'clear' on Linux/macOS
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
 
-    std::cout << "Current path: " << current_path << std::endl;
-    for(size_t i=0; i < files.size(); ++i) {
-        std::cout << "[" << i << "]" << files[i].path().filename().string();
-        if(files[i].is_directory()) {
-            std::cout << " [DIR]";
+    const int totalWidth = 100;
+    const int panelWidth = totalWidth / 2 - 1;
+
+    std::cout << "Current path (left and right): " << current_path << std::endl;
+    std::cout << std::string(totalWidth, '=') << std::endl;
+
+    // Draw both panels line by line
+    size_t maxRows = std::max<size_t>(files.size(), 15);
+    for (size_t i = 0; i < maxRows; ++i) {
+        std::string left, right;
+
+        // Left panel (your current directory)
+        if (i < files.size()) {
+            left = "[" + std::to_string(i) + "] " + files[i].path().filename().string();
+            if (files[i].is_directory())
+                left += " [DIR]";
         }
-        std::cout << std::endl;
+
+        // Right panel (for now, show same directory)
+        if (i < files.size()) {
+            right = "[" + std::to_string(i) + "] " + files[i].path().filename().string();
+            if (files[i].is_directory())
+                right += " [DIR]";
+        }
+
+        // Format and align columns
+        if (left.size() > static_cast<size_t>(panelWidth - 2))
+            left = left.substr(0, panelWidth - 5) + "...";
+        if (right.size() > static_cast<size_t>(panelWidth - 2))
+            right = right.substr(0, panelWidth - 5) + "...";
+
+        std::cout << std::left << std::setw(panelWidth) << left << " |   "
+                  << std::left << std::setw(panelWidth) << right << "\n";
     }
 
-    std::cout << "[" << files.size() << "] [UP DIR]" << std::endl;
+    std::cout << std::string(totalWidth, '=') << std::endl;
+    std::cout << "[ GO UP ] [<- Backspace + Enter]" << std::endl;
 
+    // Input handling (your existing logic)
     std::cout << std::endl << "Select file number: ";
-    std::string input =  FileManager::get_input_immediate();
+    std::string input = FileManager::get_input_immediate();
+
+    // Check for Backspace
+    // Check for Backspace (go back if pressed with no text)
+    if (input.empty()) {
+        // Backspace pressed at empty input will be handled inside get_input_immediate
+        // but we can check again here for safety
+        const auto& selected = files[0];
+        auto selected_path = selected.path();
+        auto objWindowsFileSystem = std::make_shared<WindowsFileSystem>();
+        current_path = objWindowsFileSystem->go_back(selected_path.string());
+        refresh_files();
+
+        return;
+    }
 
     try {
         int index = std::stoi(input);
-        if(index >= 0 && index < static_cast<int>(files.size())) {
+        if (index >= 0 && index < static_cast<int>(files.size())) {
             open_selected(index);
-        }
-        else if(index == static_cast<int>(files.size())) {
-            go_back();
-        }
-        else {
+        } else {
             std::cout << "Invalid index." << std::endl;
         }
     } catch (...) {
         done.store(true);
         esc_pressed.store(true);
-        // go_back();
         std::cout << "Invalid input." << std::endl;
     }
 }
@@ -112,12 +154,26 @@ void FileManager::open_selected(int index) {
     }
 }
 
-void FileManager::go_back() {
-    const auto& selected = files[0];
-    auto absolute_path = std::filesystem::absolute(selected.path());
-    auto current_absolute_path = std::filesystem::absolute(absolute_path.parent_path());
-    auto parent_absolute_path = std::filesystem::absolute(current_absolute_path.parent_path());
-    current_path = parent_absolute_path.string();
-    std::cout << "Full path: " << current_path << '\n';
-    refresh_files();
+// Helper function to draw one panel (used for both left and right)
+void drawPanel(const std::vector<fs::directory_entry>& files, int panelWidth, bool isLeft) {
+    const size_t maxRows = 15;
+    for (size_t i = 0; i < maxRows; ++i) {
+        if (i < files.size()) {
+            std::string name = "[" + std::to_string(i) + "] " + files[i].path().filename().string();
+            if (files[i].is_directory())
+                name += " [DIR]";
+
+            if (name.size() > static_cast<size_t>(panelWidth - 2))
+                name = name.substr(0, panelWidth - 5) + "...";
+
+            std::cout << std::left << std::setw(panelWidth) << name;
+        } else {
+            std::cout << std::setw(panelWidth) << " ";
+        }
+
+        if (isLeft)
+            std::cout << "│"; // separator between panels
+
+        std::cout << "\n";
+    }
 }

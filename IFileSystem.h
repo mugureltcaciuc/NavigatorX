@@ -1,6 +1,12 @@
 #pragma once
 #include <filesystem>
 #include <vector>
+#include <iomanip>   // for std::setw
+#include <filesystem>
+#include <iostream>
+#include <string>
+
+namespace fs = std::filesystem;
 
 class IFileSystem {
 public:

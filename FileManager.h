@@ -12,6 +12,7 @@ private:
     std::vector<std::filesystem::directory_entry> files;
     std::unique_ptr<IFileSystem> fs;
 
+    void drawPanel(const std::vector<fs::directory_entry>& files, int panelWidth, bool isLeft);
     void refresh_files();
     void open_selected(int index);
     void go_back();
