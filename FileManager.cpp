@@ -18,17 +18,16 @@
 #pragma comment(lib,"User32.lib")
 
 using namespace std;
-namespace fs = std::filesystem;
 
 
-FileManager::FileManager(std::unique_ptr<IFileSystem> fs, const std::string& path)
-    : fs(std::move(fs)), current_path(path) {
+FileManager::FileManager(std::unique_ptr<IFileSystem> fileSystem, const std::string& path)
+    : fileSystem(std::move(fileSystem)), current_path(path) {
     refresh_files();
 }
 void FileManager::refresh_files() {
     system("cls"); // Use 'clear' on Linux/macOS
     files.clear();
-     for(const auto& entry : fs::directory_iterator(current_path)) {
+     for(const auto& entry : std::filesystem::directory_iterator(current_path)) {
          files.push_back(entry);
      }
 }
@@ -75,6 +74,7 @@ void FileManager::run() {
     const int totalWidth = 100;
     const int panelWidth = totalWidth / 2 - 1;
 
+    refresh_files();
     std::cout << "Current path (left and right): " << current_path << std::endl;
     std::cout << std::string(totalWidth, '=') << std::endl;
 
@@ -121,17 +121,24 @@ void FileManager::run() {
         // but we can check again here for safety
         const auto& selected = files[0];
         auto selected_path = selected.path();
-        auto objWindowsFileSystem = std::make_shared<WindowsFileSystem>();
-        current_path = objWindowsFileSystem->go_back(selected_path.string());
+        current_path = fileSystem->go_back(selected_path.string());
         refresh_files();
 
         return;
     }
 
+    
     try {
         int index = std::stoi(input);
         if (index >= 0 && index < static_cast<int>(files.size())) {
-            open_selected(index);
+            const auto& selected = files[0];
+            auto selected_path = selected.path();
+
+            std::filesystem::path fullPath(selected_path);
+
+            // Get the parent path (i.e., remove .git)
+            std::filesystem::path directoryPath = fullPath.parent_path();
+            current_path = fileSystem->open(directoryPath.string(), index);
         } else {
             std::cout << "Invalid index." << std::endl;
         }
@@ -142,20 +149,8 @@ void FileManager::run() {
     }
 }
 
-void FileManager::open_selected(int index) {
-    std::cout << "Opening files in path: " << current_path << "\n";
-    const auto& selected = files[index];
-    if(selected.is_directory()) {
-        current_path = selected.path().string();
-        refresh_files();
-    } else {
-        std::string command = "\"" + selected.path().string() + "\"";
-        system(command.c_str());
-    }
-}
-
 // Helper function to draw one panel (used for both left and right)
-void drawPanel(const std::vector<fs::directory_entry>& files, int panelWidth, bool isLeft) {
+void drawPanel(const std::vector<std::filesystem::directory_entry>& files, int panelWidth, bool isLeft) {
     const size_t maxRows = 15;
     for (size_t i = 0; i < maxRows; ++i) {
         if (i < files.size()) {

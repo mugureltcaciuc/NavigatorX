@@ -4,5 +4,5 @@
 
 class FileSystemFactory {
 public:
-    static std::unique_ptr<IFileSystem> create();
+    static std::unique_ptr<IFileSystem> create(std::string& path);
 };

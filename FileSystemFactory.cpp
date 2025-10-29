@@ -9,11 +9,11 @@
     #include "LinuxFileSystem.h"
 #endif
 
-std::unique_ptr<IFileSystem> FileSystemFactory::create() {
+std::unique_ptr<IFileSystem> FileSystemFactory::create(std::string& path) {
 #ifdef _WIN32
-    return std::make_unique<WindowsFileSystem>();
+    return std::make_unique<WindowsFileSystem>(path);
 #else
-    return std::make_unique<LinuxFileSystem>();
+    return std::make_unique<LinuxFileSystem>(path);
 #endif
 }
 

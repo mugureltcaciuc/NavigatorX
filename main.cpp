@@ -13,6 +13,7 @@
 
 #include "FileSystemFactory.h"
 #include "FileManager.h"
+#include "WindowsFileSystem.h"
 #include "Globals.h"
 
 #pragma comment(lib,"User32.lib")
@@ -29,15 +30,15 @@ void monitor_escape_key() {
 }
 
 using namespace std;
-namespace fs = std::filesystem;
-
 
 
 int main() {
     std::thread esc_thread(monitor_escape_key);
 
-    auto fs = FileSystemFactory::create();
-    FileManager manager(std::move(fs), ".");
+    std::string start_path = std::filesystem::current_path().string();
+
+    auto fileSystem = FileSystemFactory::create(start_path);
+    FileManager manager(std::move(fileSystem), start_path);
     std::cout << "Running (press ESC to quit)...\n" << std::flush;
     while (!esc_pressed.load())
     {

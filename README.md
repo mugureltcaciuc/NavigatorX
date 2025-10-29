@@ -25,7 +25,7 @@ It provides a fast, keyboard-driven interface for navigating directories, managi
 
 ---
 
-## 🖥️ Usage
+##  Usage
 
 1. **Clone the repository**
    ```bash
@@ -33,6 +33,7 @@ It provides a fast, keyboard-driven interface for navigating directories, managi
    cd NavigatorX
 
 2. **Build the project**
+
     g++ -std=c++17 -O2 -o NavigatorX src/*.cpp
 
 
@@ -48,12 +49,13 @@ It provides a fast, keyboard-driven interface for navigating directories, managi
     Enter              |  Confirm input
 
 5. **Project Structure**
+
     NavigatorX/
     |-- src/
-    |   |-- main.cpp
-    |   |-- FileManager.cpp
-    |   |-- FileManager.h
-    |   |-- ...
+    |    |-- main.cpp
+    |    |-- FileManager.cpp
+    |    |-- FileManager.h
+    |    |-- ...
     |-- README.md
     |-- LICENSE
 

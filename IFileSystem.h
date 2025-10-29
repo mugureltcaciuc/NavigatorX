@@ -6,14 +6,12 @@
 #include <iostream>
 #include <string>
 
-namespace fs = std::filesystem;
-
 class IFileSystem {
 public:
     virtual ~IFileSystem() = default;
-    virtual std::vector<std::filesystem::directory_entry>
-    list_files(const std::string& path) = 0;
-
+ 
+    virtual std::string& current_path() const = 0;
     virtual std::string go_back(const std::string& current_path) = 0;
-    virtual void open(const std::filesystem::directory_entry& entry) = 0;
+    virtual std::string open(const std::string& selected_path, int index) = 0;
+    virtual std::vector<std::filesystem::directory_entry> list_files(const std::string& path) const = 0;
 };
