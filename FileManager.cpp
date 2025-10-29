@@ -22,7 +22,8 @@ using namespace std;
 
 
 FileManager::FileManager(std::unique_ptr<IFileSystem> fileSystem, const std::string& path)
-    : fileSystem(std::move(fileSystem)), current_path(path) {
+    : fileSystem(std::move(fileSystem)), current_path(path), left_path(std::filesystem::path(path)),
+    right_path(std::filesystem::path(path).parent_path()) {
     refresh_files();
 }
 void FileManager::refresh_files() {
@@ -75,8 +76,10 @@ void FileManager::run() {
     refresh_files();
     std::cout << "Current path (left and right): " << current_path << std::endl;
 
-    std::filesystem::path left_path(current_path);
-    this->drawPanel(left_path, left_path);
+    left_path = isLeftPanelActive ? std::filesystem::path(current_path) : left_path;
+    right_path = !isLeftPanelActive ? std::filesystem::path(current_path) : right_path;
+
+    this->drawPanel(left_path, right_path,  isLeftPanelActive);
 
     // Input handling (your existing logic)
     std::cout << std::endl << "Select file number: ";
@@ -95,7 +98,11 @@ void FileManager::run() {
         return;
     }
 
-    
+    if(input == "\t")
+    {
+        return;
+    }
+
     try {
         int index = std::stoi(input);
         if (index >= 0 && index < static_cast<int>(files.size())) {
@@ -131,7 +138,8 @@ void FileManager::drawMenuBar() {
     std::cout << "+--------------------------------------------------------------------------------------------------+" << std::endl;
 }
 
-void FileManager::drawLeftPanel(const std::filesystem::path& path, std::vector<std::string>& buffer) {
+void FileManager::drawLeftPanel(const std::filesystem::path& path, std::vector<std::string>& buffer, bool isLeftPanelActive)
+{
     if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
         buffer.push_back("[Invalid path]");
         return;
@@ -147,7 +155,8 @@ void FileManager::drawLeftPanel(const std::filesystem::path& path, std::vector<s
     }
 }
 
-void FileManager::drawRightPanel(const std::filesystem::path& path, std::vector<std::string>& buffer) {
+void FileManager::drawRightPanel(const std::filesystem::path& path, std::vector<std::string>& buffer, bool isRightPanelActive)
+{
     if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
         buffer.push_back("[Invalid path]");
         return;
@@ -165,21 +174,24 @@ void FileManager::drawRightPanel(const std::filesystem::path& path, std::vector<
 }
 
 // Helper function to draw one panel (used for both left and right)
-void FileManager::drawPanel(const std::filesystem::path& leftPath, const std::filesystem::path& rightPath)
+void FileManager::drawPanel(const std::filesystem::path& leftPath, const std::filesystem::path& rightPath,  bool isLeftPanelActive)
 {
     drawMenuBar();
 
     std::vector<std::string> leftBuffer;
     std::vector<std::string> rightBuffer;
 
-    drawLeftPanel(leftPath, leftBuffer);
-    drawRightPanel(rightPath, rightBuffer);
+    drawLeftPanel(leftPath, leftBuffer, isLeftPanelActive);
+    drawRightPanel(rightPath, rightBuffer, !isLeftPanelActive);
 
     auto left_size = leftBuffer.size();
     auto right_size =  rightBuffer.size();
     size_t maxLines = max(left_size, right_size);
 
-    std::cout << std::left << std::setw(40) << "Left Panel" << " | " << std::setw(40) << "Right Panel" << std::endl;
+    std::string leftLabel  = isLeftPanelActive ? "> LEFT PANEL <"  : "  Left Panel  ";
+    std::string rightLabel = !isLeftPanelActive ? "> RIGHT PANEL <" : "  Right Panel ";
+
+    std::cout << std::left << std::setw(40) << leftLabel << " | " << std::setw(40) << rightLabel << std::endl;
     std::cout << std::string(98, '-') << std::endl;
 
     for (size_t i = 0; i < maxLines; ++i) {

@@ -6,5 +6,6 @@
 
 extern std::atomic<bool> done;
 extern std::atomic<bool> esc_pressed;
+extern std::atomic<bool> tab_pressed;
 
 #endif // GLOBALS_H
