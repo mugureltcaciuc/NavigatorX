@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: cl.exe build NavigatorX",
+            "command": "cl.exe",
+            "args": [
+                "/std:c++17",
+                "/EHsc",
+                "/Zc:__cplusplus",
+                "/Zi",
+                "/nologo",
+                "/I", "include",
+                "src\\*.cpp",
+                "/Fo${workspaceFolder}\\build\\",
+                "/Fe${workspaceFolder}\\NavigatorX.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Build NavigatorX from src/ using cl.exe"
+        }
+    ]
+}
