@@ -5,6 +5,7 @@ class WindowsFileSystem : public IFileSystem
 {
 public:
     WindowsFileSystem(std::string& startPath);
+    void initialize();
 
     std::string& current_path() const override;
     std::string go_back(const std::string& current_path) override;
@@ -13,5 +14,7 @@ public:
     std::vector<std::filesystem::directory_entry> list_files(const std::string& path) const override;
 
 private:
+    std::vector<std::filesystem::directory_entry> _files;
+    bool _initialized;
     std::string& _currentPath;
 };

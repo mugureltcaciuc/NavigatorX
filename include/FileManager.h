@@ -6,7 +6,7 @@ class FileManager {
 public:
     FileManager(std::unique_ptr<IFileSystem> fs, const std::string& path);
     void run();
-    void drawPanel(const std::filesystem::path& leftPath, const std::filesystem::path& rightPath, bool isLeftPanelActive);
+    void drawPanel(const std::filesystem::path& leftPath, const std::filesystem::path& rightPath);
     bool isLeftPanelActive = true;
     int selectedLeftIndex = 0; // Tracks which file is selected
     int selectedRightIndex = 0; // Tracks which file is selected
@@ -20,8 +20,8 @@ private:
     std::unique_ptr<IFileSystem> fileSystem;
 
     void drawMenuBar();
-    void drawLeftPanel(const std::filesystem::path& path, std::vector<std::string>& buffer, bool isActive);
-    void drawRightPanel(const std::filesystem::path& path, std::vector<std::string>& buffer, bool isActive);
+    void drawLeftRightPanels(const std::filesystem::path& leftPath, const std::filesystem::path& rightPath, std::vector<std::string>& buffer);
+
     // Helper functions
     void refresh_files();
     void clear_screen();

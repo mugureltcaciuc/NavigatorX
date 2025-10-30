@@ -1,19 +1,17 @@
 #include <algorithm>
-#include <iostream>
-#include <filesystem>
-#include <vector>
-#include <string>
-#include <cstdlib>
-
-#include <iomanip>        // For formatting output (e.g., std::setprecision)
-#include <sstream>        // For building formatted strings
-#include <ctime>          // For std::localtime and std::strftime
-
-#include <windows.h>
-#include <conio.h>
-#include <thread>
-#include <chrono>
 #include <atomic>
+#include <chrono>
+#include <conio.h>
+#include <cstdlib>
+#include <ctime>
+#include <filesystem>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <vector>
+#include <windows.h>
 
 #include "FileManager.h"
 #include "WindowsFileSystem.h"
@@ -23,6 +21,11 @@
 #pragma comment(lib,"User32.lib")
 
 using namespace std;
+
+
+const int panelWidth = 50;
+const int separatorWidth = 2;
+const std::string panelSeparator = " | ";
 
 
 FileManager::FileManager(std::unique_ptr<IFileSystem> fileSystem, const std::string& path)
@@ -65,12 +68,12 @@ std::string FileManager::get_input_immediate() {
             }
             else {
                 buffer.push_back(static_cast<char>(ch));
-                std::cout << static_cast<char>(ch); // echo
             }
         }
     }
     return buffer;
 }
+
 void FileManager::run() {
     clear_screen();
     refresh_files();
@@ -78,9 +81,9 @@ void FileManager::run() {
     std::cout << "Current path (left and right): " << current_path << std::endl;
 
     update_panel_paths();
-    drawPanel(left_path, right_path, isLeftPanelActive);
+    drawPanel(left_path, right_path);
 
-    std::cout << "\nSelect file number: ";
+    // std::cout << "\nSelect file number: ";
     std::string input = get_input_immediate();
 
     if (handle_special_input(input)) {
@@ -97,13 +100,13 @@ void FileManager::drawMenuBar()
         "1 View", "2 Edit", "3 Copy", "4 Move", "5 NewFolder", "7 Delete", "TAB SwitchPanel", "BS FolderUp", "ESC Quit"
     };
 
-    std::cout << "+--------------------------------------------------------------------------------------------------+" << std::endl;
+    std::cout << "+" << std::string(128, '-') << "+" << std::endl;
     for (const auto& item : menuItems)
     {
         std::cout << "|  " << std::setw(8) << std::left << item;
     }
     std::cout << std::endl;
-    std::cout << "+--------------------------------------------------------------------------------------------------+" << std::endl;
+    std::cout << "+" << std::string(128, '-') << "+" << std::endl;
 }
 
 std::string FileManager::formatEntry(size_t index, const std::string& name, const std::string& type,
@@ -119,22 +122,38 @@ std::string FileManager::formatEntry(size_t index, const std::string& name, cons
     return line.str();
 }
 
-void FileManager::drawLeftPanel(const std::filesystem::path& path, std::vector<std::string>& buffer, bool isLeftPanelActive) {
-    if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
-        buffer.push_back("[Invalid path]");
-        return;
-    }
+void FileManager::drawLeftRightPanels(const std::filesystem::path& leftPath,
+                                      const std::filesystem::path& rightPath,
+                                      std::vector<std::string>& buffer) 
+{
+    const int indexWidth = 6;     // e.g. "[* 0]"
+    const int nameWidth = 25;
+    const int typeWidth = 6;      // "[DIR]" or empty
+    const int sizeWidth = 10;     // e.g. " 20.7 MB"
+    const int timeWidth = 16;     // e.g. "2025-10-30 19:24"
+    const std::string panelSeparator = " | ";
 
-    for (const auto& entry : std::filesystem::directory_iterator(path)) {
+    const int panelWidth = indexWidth + nameWidth + typeWidth + sizeWidth + timeWidth;
+
+    std::string leftHeader  = isLeftPanelActive ? "+------------------ >>> LEFT PANEL <<< --------------------+"  : "+------------------ Left Panel --------------------+  ";
+    std::string rightHeader = !isLeftPanelActive ? "+------------------ >>> RIGHT PANEL <<< --------------------+" : "+------------------ Right Panel --------------------+ ";
+
+    std::ostringstream headerLine;
+    headerLine << std::left << std::setw(panelWidth) << leftHeader
+               << panelSeparator
+               << std::left << std::setw(panelWidth) << rightHeader;
+    buffer.push_back(headerLine.str());
+
+    auto formatEntry = [&](const std::filesystem::directory_entry& entry,
+                           size_t index,
+                           bool isPanelActive,
+                           int selectedIndex) -> std::string {
         std::string name = entry.path().filename().string();
         std::string type = entry.is_directory() ? "[DIR]" : "";
-
-        std::string sizeStr = "";
-        std::string timeStr = "";
+        std::string sizeStr, timeStr;
 
         if (entry.is_regular_file()) {
-            auto fsize = entry.file_size();
-            double sizeMB = static_cast<double>(fsize) / (1024 * 1024);
+            double sizeMB = static_cast<double>(entry.file_size()) / (1024 * 1024);
             std::ostringstream oss;
             oss << std::fixed << std::setprecision(1) << sizeMB << " MB";
             sizeStr = oss.str();
@@ -150,79 +169,62 @@ void FileManager::drawLeftPanel(const std::filesystem::path& path, std::vector<s
             timeStr = timeBuf;
         }
 
-        size_t index = buffer.size();
-        bool isSelected = (index == selectedLeftIndex);
-        buffer.push_back(formatEntry(index, name, type, sizeStr, timeStr, isSelected));
-        if (buffer.size() >= 20) break;
-    }
-}
+        std::ostringstream line;
+        line << std::left << std::setw(indexWidth)
+             << (isPanelActive && index == selectedIndex ? "[* " + std::to_string(index) + "]" : "[  " + std::to_string(index) + "]")
+             << std::left << std::setw(nameWidth) << name
+             << std::left << std::setw(typeWidth) << type
+             << std::left << std::setw(sizeWidth) << sizeStr
+             << std::left << std::setw(timeWidth) << timeStr;
 
-void FileManager::drawRightPanel(const std::filesystem::path& path, std::vector<std::string>& buffer, bool isRightPanelActive) {
-    if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
-        buffer.push_back("[Invalid path]");
-        return;
-    }
+        return line.str();
+    };
 
-    for (const auto& entry : std::filesystem::directory_iterator(path)) {
-        std::string name = entry.path().filename().string();
-        std::string type = entry.is_directory() ? "[DIR]" : "";
+    std::vector<std::string> leftEntries;
+    std::vector<std::string> rightEntries;
 
-        std::string sizeStr = "";
-        std::string timeStr = "";
-
-        if (entry.is_regular_file()) {
-            auto fsize = entry.file_size();
-            double sizeMB = static_cast<double>(fsize) / (1024 * 1024);
-            std::ostringstream oss;
-            oss << std::fixed << std::setprecision(1) << sizeMB << " MB";
-            sizeStr = oss.str();
-
-            auto ftime = entry.last_write_time();
-            auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-                ftime - decltype(ftime)::clock::now() + std::chrono::system_clock::now()
-            );
-            std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
-            std::tm* tm = std::localtime(&cftime);
-            char timeBuf[20];
-            std::strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M", tm);
-            timeStr = timeBuf;
+    if (std::filesystem::exists(leftPath) && std::filesystem::is_directory(leftPath)) {
+        size_t index = 0;
+        for (const auto& entry : std::filesystem::directory_iterator(leftPath)) {
+            leftEntries.push_back(formatEntry(entry, index++, isLeftPanelActive, selectedLeftIndex));
+            if (leftEntries.size() >= 20) break;
         }
+    } else {
+        leftEntries.push_back("[Invalid path]");
+    }
 
-        size_t index = buffer.size();
-        bool isSelected = (index == selectedRightIndex);
-        buffer.push_back(formatEntry(index, name, type, sizeStr, timeStr, isSelected));
-        if (buffer.size() >= 20) break;
+    if (std::filesystem::exists(rightPath) && std::filesystem::is_directory(rightPath)) {
+        size_t index = 0;
+        for (const auto& entry : std::filesystem::directory_iterator(rightPath)) {
+            rightEntries.push_back(formatEntry(entry, index++, !isLeftPanelActive, selectedRightIndex));
+            if (rightEntries.size() >= 20) break;
+        }
+    } else {
+        rightEntries.push_back("[Invalid path]");
+    }
+
+    size_t maxLines = max(leftEntries.size(), rightEntries.size());
+    for (size_t i = 0; i < maxLines; ++i) {
+        std::string left = i < leftEntries.size() ? leftEntries[i] : std::string(panelWidth, ' ');
+        std::string right = i < rightEntries.size() ? rightEntries[i] : std::string(panelWidth, ' ');
+        std::ostringstream line;
+        line << left << panelSeparator << right;
+        buffer.push_back(line.str());
     }
 }
 
 // Helper function to draw one panel (used for both left and right)
-void FileManager::drawPanel(const std::filesystem::path& leftPath, const std::filesystem::path& rightPath,  bool isLeftActive)
+void FileManager::drawPanel(const std::filesystem::path& leftPath, const std::filesystem::path& rightPath)
 {
-    drawMenuBar();
+    std::cout << std::string(130, '-') << std::endl;
+    std::vector<std::string> buffer;
+    drawLeftRightPanels(leftPath, rightPath, buffer);
 
-    std::vector<std::string> leftBuffer;
-    std::vector<std::string> rightBuffer;
-
-    drawLeftPanel(leftPath, leftBuffer, isLeftActive);
-    drawRightPanel(rightPath, rightBuffer, !isLeftActive);
-
-    auto left_size = leftBuffer.size();
-    auto right_size =  rightBuffer.size();
-    size_t maxLines = max(left_size, right_size);
-
-    std::string leftLabel  = isLeftActive ? ">>> LEFT PANEL <<<"  : "  Left Panel  ";
-    std::string rightLabel = !isLeftActive ? ">>> RIGHT PANEL <<<" : "  Right Panel ";
-
-    std::cout << std::left << std::setw(40) << leftLabel << " | " << std::setw(40) << rightLabel << std::endl;
-    std::cout << std::string(98, '-')    << std::endl;
-
-    for (size_t i = 0; i < maxLines; ++i) {
-        std::string left = i < leftBuffer.size() ? leftBuffer[i] : "";
-        std::string right = i < rightBuffer.size() ? rightBuffer[i] : "";
-        std::cout << std::setw(40) << left << " | " << std::setw(40) << right << std::endl;
+    for (const auto& line : buffer) {
+        std::cout << line << std::endl;
     }
 
-    std::cout << std::string(98, '-') << std::endl;
+    drawMenuBar();
 }
 
 void FileManager::clear_screen() {
@@ -264,12 +266,12 @@ int FileManager::handle_index_input(const std::string& input) {
             std::filesystem::path directoryPath = files[0].path().parent_path();
             current_path = fileSystem->open(directoryPath.string(), index);
         } else {
-            // std::cout << "Invalid index." << std::endl;
+            // Do nothing;
         }
     } catch (...) {
         // done.store(true);
         // esc_pressed.store(true);
-        // std::cout << "Invalid input." << std::endl;
+        // Do nothing;
     }
     return index;
 }
