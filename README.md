@@ -75,19 +75,35 @@ NavigatorX is fully keyboard-driven. Use the following keys to navigate and mana
 
 5. **Project Structure**
 
-    NavigatorX/
-    |-- src/
-    |    |-- main.cpp
-    |    |-- FileManager.cpp
-    |    |-- FileManager.h
-    |    |-- FileSystemFactory.cpp
-    |    |-- FileSystemFactory.h
-    |    |-- WindowsFileSystem.cpp
-    |    |-- WindowsFileSystem.h
-    |    |-- IFileSystem.h
-    |    |-- ...
-    |-- README.md
-    |-- LICENSE
+Project Structure
+```
+NavigatorX/
+|-- src/
+|   |-- main.cpp
+|   |-- FileManager.cpp
+|   |-- FileManager.h
+|   |-- FileSystemFactory.cpp
+|   |-- FileSystemFactory.h
+|   |-- WindowsFileSystem.cpp
+|   |-- WindowsFileSystem.h
+|   |-- IFileSystem.h
+|-- tests/
+|   |-- WindowsFileSystemTests.cpp
+|-- external/
+|   |-- googletest/
+|   |-- googlemock/
+|-- docs/
+|   |-- screenshots/
+|       |-- navigatorx_dual_panel.png
+|       |-- windows_file_system_tests.png
+|-- .vscode/
+|   |-- c_cpp_properties.json
+|   |-- launch.json
+|   |-- settings.json
+|   |-- tasks.json
+|-- README.md
+|-- LICENSE
+```
 
 
 6. **Planned Improvements**
