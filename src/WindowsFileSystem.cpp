@@ -5,21 +5,27 @@
 
 using namespace std;
 
-WindowsFileSystem::WindowsFileSystem(std::string &startPath)
-    : _currentPath(startPath), _initialized(false) {}
+WindowsFileSystem::WindowsFileSystem(std::string& left_path, std::string& right_path)
+    : _left_path(left_path), _right_path(right_path), _initialized(false) {}
 
 void WindowsFileSystem::initialize()
 {
     if (!_initialized)
     {
-        _files = list_files(_currentPath);
+        _right_files = list_files(_right_path);
+        _left_files = list_files(_left_path);
         _initialized = true;
     }
 }
 
-std::string &WindowsFileSystem::current_path() const
+std::string &WindowsFileSystem::get_left_path()
 {
-    return _currentPath;
+    return _left_path;
+}
+
+std::string &WindowsFileSystem::get_right_path()
+{
+    return _right_path;
 }
 
 std::string WindowsFileSystem::open(const std::string &selected_path, int index)

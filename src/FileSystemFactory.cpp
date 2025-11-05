@@ -4,16 +4,16 @@
 
 // Include platform-specific file system implementations
 #ifdef _WIN32
-    #include "WindowsFileSystem.h"
+#include "WindowsFileSystem.h"
 #else
-    #include "LinuxFileSystem.h"
+#include "LinuxFileSystem.h"
 #endif
 
-std::unique_ptr<IFileSystem> FileSystemFactory::create(std::string& path) {
+std::unique_ptr<IFileSystem> FileSystemFactory::create(std::string &left_path, std::string &right_path)
+{
 #ifdef _WIN32
-    return std::make_unique<WindowsFileSystem>(path);
+    return std::make_unique<WindowsFileSystem>(left_path, right_path);
 #else
-    return std::make_unique<LinuxFileSystem>(path);
+    return std::make_unique<LinuxFileSystem>(left_path, right_path);
 #endif
 }
-
