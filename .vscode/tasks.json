@@ -3,7 +3,7 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "C/C++: cl.exe build NavigatorX",
+            "label": "C/C++: cl.exe build SystemFileManagerX",
             "command": "cl.exe",
             "args": [
                 "/std:c++17",
@@ -15,7 +15,7 @@
                 "include",
                 "src\\*.cpp",
                 "/Fo${workspaceFolder}\\build\\",
-                "/Fe${workspaceFolder}\\NavigatorX.exe"
+                "/Fe${workspaceFolder}\\SystemFileManagerX.exe"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -27,7 +27,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Build NavigatorX from src/ using cl.exe"
+            "detail": "Build SystemFileManagerX from src/ using cl.exe"
         },
         {
             "label": "Build Google Tests (WindowsFileSystem)",
