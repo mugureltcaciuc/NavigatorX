@@ -11,8 +11,7 @@
                 "/Zc:__cplusplus",
                 "/Zi",
                 "/nologo",
-                "/I",
-                "include",
+                "/Iinclude",
                 "src\\*.cpp",
                 "/Fo${workspaceFolder}\\build\\",
                 "/Fe${workspaceFolder}\\SystemFileManagerX.exe"

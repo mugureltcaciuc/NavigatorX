@@ -152,7 +152,7 @@ void FileManager::drawMenuBar()
     const int innerWidth = totalWidth + 2; // matches the top/bottom border width you use
     const int colWidth = 13;               // you print "|  " + std::setw(8) -> 10 chars per item
 
-    std::cout << "+" << std::string(innerWidth, '-') << "+" << std::endl;
+    // std::cout << "+" << std::string(innerWidth, '-') << "+" << std::endl;
 
     int printed = 0;
     for (const auto &item : menuItems)
@@ -182,6 +182,43 @@ std::string FileManager::formatEntry(size_t index, const std::string &name, cons
          << std::setw(10) << sizeStr
          << std::setw(17) << timeStr;
     return line.str();
+}
+
+void FileManager::print_line_with_dual_selection(const std::string &line, bool isLeftSelected, bool isRightSelected, size_t totalWidth)
+{
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    WORD originalAttr = 7; // fallback: light gray on black
+    if (GetConsoleScreenBufferInfo(h, &csbi))
+        originalAttr = csbi.wAttributes;
+
+    size_t halfWidth = totalWidth / 2;
+    std::string leftPart = line.substr(0, halfWidth);
+    std::string rightPart = line.substr(halfWidth);
+
+    if (isLeftSelected)
+    {
+        WORD leftAttr = BACKGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+        SetConsoleTextAttribute(h, leftAttr);
+        std::cout << leftPart;
+        SetConsoleTextAttribute(h, originalAttr);
+    }
+    else
+    {
+        std::cout << leftPart;
+    }
+
+    if (isRightSelected)
+    {
+        WORD rightAttr = BACKGROUND_GREEN | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+        SetConsoleTextAttribute(h, rightAttr);
+        std::cout << rightPart;
+        SetConsoleTextAttribute(h, originalAttr);
+    }
+    else
+    {
+        std::cout << rightPart;
+    }
 }
 
 void FileManager::drawLeftRightPanels(const std::filesystem::path &leftPath,
@@ -314,13 +351,35 @@ void FileManager::drawPanel(const std::filesystem::path &leftPath, const std::fi
     std::cout << "| " << headerLine << " |" << std::endl;
     std::cout << "+" << std::string(totalWidth + 2, '-') << "+" << std::endl;
 
+    if (isLeftPanelActive && selectedLeftIndex >= left_files.size())
+    {
+        selectedLeftIndex = left_files.empty() ? 0 : left_files.size() - 1;
+    }
+    if (!isLeftPanelActive && selectedRightIndex >= right_files.size())
+    {
+        selectedRightIndex = right_files.empty() ? 0 : right_files.size() - 1;
+    }
+
     // draw entries into a buffer and print them
     std::vector<std::string> buffer;
     drawLeftRightPanels(leftPath, rightPath, buffer);
 
-    for (const auto &line : buffer)
+    const size_t headerLines = 1; // adjust if drawLeftRightPanels adds more header lines
+
+    for (size_t i = 0; i < buffer.size(); ++i)
     {
-        std::cout << "| " << std::left << std::setw(totalWidth) << line << " |" << std::endl;
+        size_t headerLines = 1; // or more, depending on your layout
+        size_t fileIndex = i - headerLines;
+
+        bool isLeftSelected = isLeftPanelActive && fileIndex == selectedLeftIndex && i >= headerLines;
+        bool isRightSelected = !isLeftPanelActive && fileIndex == selectedRightIndex && i >= headerLines;
+
+        std::ostringstream oss;
+        oss << std::left << std::setw(totalWidth) << buffer[i];
+
+        std::cout << "| ";
+        print_line_with_dual_selection(oss.str(), isLeftSelected, isRightSelected, totalWidth);
+        std::cout << " |" << std::endl;
     }
 
     // bottom border before menu
@@ -363,14 +422,6 @@ bool FileManager::process_navigation_input(const std::string &input)
     if (input == "\t" || input == "__TAB__")
     {
         isLeftPanelActive = !isLeftPanelActive;
-        if (isLeftPanelActive)
-        {
-            selectedLeftIndex = 0;
-        }
-        else
-        {
-            selectedRightIndex = 0;
-        }
         return false;
     }
 

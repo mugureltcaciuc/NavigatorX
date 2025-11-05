@@ -94,7 +94,7 @@ SystemFileManagerX/
 |   |-- googlemock/
 |-- docs/
 |   |-- screenshots/
-|       |-- SystemFileManagerX_dual_panel.png
+|       |-- systemfilemanagerx_dual_panel.png
 |       |-- windows_file_system_tests.png
 |-- .vscode/
 |   |-- c_cpp_properties.json

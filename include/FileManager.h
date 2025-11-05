@@ -32,6 +32,6 @@ private:
     int process_file_selection_input(const std::string &input);
     std::string formatEntry(size_t index, const std::string &name, const std::string &type,
                             const std::string &sizeStr, const std::string &timeStr, bool isSelected);
-
-    static std::string read_user_command();
+    void print_line_with_dual_selection(const std::string &line, bool isLeftSelected, bool isRightSelected, size_t totalWidth);
+    std::string read_user_command();
 };
