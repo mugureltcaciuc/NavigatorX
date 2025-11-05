@@ -27,10 +27,11 @@ private:
     // Helper functions
     void refresh_files();
     void clear_screen();
-    bool handle_special_input(const std::string &input);
-    int handle_index_input(const std::string &input);
+    int selectedIndex() const;
+    bool process_navigation_input(const std::string &input);
+    int process_file_selection_input(const std::string &input);
     std::string formatEntry(size_t index, const std::string &name, const std::string &type,
                             const std::string &sizeStr, const std::string &timeStr, bool isSelected);
 
-    static std::string get_input_immediate();
+    static std::string read_user_command();
 };

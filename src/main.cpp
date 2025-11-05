@@ -96,16 +96,6 @@ int main()
 
         if (tab_pressed.load())
         {
-            manager.isLeftPanelActive = !manager.isLeftPanelActive;
-            if (manager.isLeftPanelActive)
-            {
-                manager.selectedLeftIndex = 0;
-            }
-            else
-            {
-                manager.selectedRightIndex = 0;
-            }
-
             tab_pressed.store(false);
         }
 

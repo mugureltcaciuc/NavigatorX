@@ -49,7 +49,7 @@ void FileManager::refresh_files()
 }
 
 // Reads input immediately, returns on Enter or Escape
-std::string FileManager::get_input_immediate()
+std::string FileManager::read_user_command()
 {
     std::string buffer;
 
@@ -59,35 +59,64 @@ std::string FileManager::get_input_immediate()
         {
             int ch = _getch();
 
-            if (ch == 27)
-            { // ESC
+            // Handle extended keys (e.g., function keys)
+            if (ch == 0 || ch == 224)
+            {
+                int ext = _getch();
+                switch (ext)
+                {
+                case 60:
+                    return "__F2__"; // Rename
+                case 61:
+                    return "__F3__"; // View
+                case 62:
+                    return "__F4__"; // Edit
+                case 63:
+                    return "__F5__"; // Copy
+                case 64:
+                    return "__F6__"; // Move
+                case 65:
+                    return "__F7__"; // New Folder
+                case 66:
+                    return "__F8__"; // Delete
+                case 72:
+                    return "__UP__"; // Arrow Up
+                case 80:
+                    return "__DOWN__"; // Arrow Down
+                default:
+                    break;
+                }
+            }
+
+            switch (ch)
+            {
+            case 27: // ESC
                 std::cout << "\nEscape pressed. Exiting...\n";
-                return "__ESC__"; // special marker, or you can throw/exit
-            }
-            else if (ch == 13)
-            { // Enter
+                return "__ESC__";
+
+            case 13: // Enter
                 std::cout << "\n";
-                return buffer; // return collected input
-            }
-            else if (ch == 8)
-            { // Backspace
+                return buffer;
+
+            case 8: // Backspace
                 if (!buffer.empty())
                 {
                     buffer.pop_back();
-                    std::cout << "\b \b"; // erase last char on console
+                    std::cout << "\b \b";
                 }
-            }
-            else if (ch == 9)
-            { // TAB
+                break;
+
+            case 9: // TAB
                 tab_pressed.store(true);
                 return "__TAB__";
-            }
-            else
-            {
+
+            default:
                 buffer.push_back(static_cast<char>(ch));
+                break;
             }
         }
     }
+
     return buffer;
 }
 
@@ -95,25 +124,23 @@ void FileManager::run()
 {
     clear_screen();
     refresh_files();
-
     drawPanel(left_path, right_path);
 
-    // std::cout << "\nSelect file number: ";
-    std::string input = get_input_immediate();
+    std::string input = read_user_command();
 
-    if (handle_special_input(input))
+    if (process_navigation_input(input))
     {
         return;
     }
 
-    handle_index_input(input);
+    process_file_selection_input(input);
     refresh_files();
 }
 
 void FileManager::drawMenuBar()
 {
     std::vector<std::string> menuItems = {
-        "F3 View", "F4 Edit", "F5 Copy", "F6 Move", "F7 NewFolder", "F8 Delete", "TAB SwitchPanel", "BS FolderUp", "ESC Quit"};
+        "F2 Rename", "F3 View", "F4 Edit", "F5 Copy", "F6 Move", "F7 NewFolder", "F8 Delete", "TAB SwitchPanel", "BS FolderUp", "ESC Quit"};
 
     std::cout << "+" << std::string(128, '-') << "+" << std::endl;
     for (const auto &item : menuItems)
@@ -267,8 +294,11 @@ void FileManager::clear_screen()
 #endif
 }
 
-bool FileManager::handle_special_input(const std::string &input)
+bool FileManager::process_navigation_input(const std::string &input)
 {
+    auto &activeFiles = isLeftPanelActive ? left_files : right_files;
+    auto &activePath = isLeftPanelActive ? left_path : right_path;
+
     if (input.empty())
     {
         if (isLeftPanelActive)
@@ -286,13 +316,116 @@ bool FileManager::handle_special_input(const std::string &input)
 
     if (input == "\t" || input == "__TAB__")
     {
+        isLeftPanelActive = !isLeftPanelActive;
+        if (isLeftPanelActive)
+        {
+            selectedLeftIndex = 0;
+        }
+        else
+        {
+            selectedRightIndex = 0;
+        }
         return false;
+    }
+
+    if (input == "__F2__") // Rename
+    {
+        const auto &activeFiles = isLeftPanelActive ? left_files : right_files;
+        if (!activeFiles.empty())
+        {
+            std::filesystem::path original = activeFiles[selectedIndex()].path();
+            std::cout << "\nEnter new name for " << original.filename() << ": ";
+            std::string new_name;
+            std::getline(std::cin, new_name);
+            if (!new_name.empty())
+            {
+                fileSystem->rename_file(original, new_name);
+                refresh_files();
+            }
+        }
+        return true;
+    }
+
+    if (input == "__F3__") // View
+    {
+        const auto &activeFiles = isLeftPanelActive ? left_files : right_files;
+        if (!activeFiles.empty())
+        {
+            std::filesystem::path file = activeFiles[selectedIndex()].path();
+            fileSystem->view_file_content(file);
+        }
+        return true;
+    }
+
+    if (input == "__F4__") // Edit
+    {
+        const auto &activeFiles = isLeftPanelActive ? left_files : right_files;
+        if (!activeFiles.empty())
+        {
+            std::filesystem::path file = activeFiles[selectedIndex()].path();
+            fileSystem->edit_file_content(file);
+        }
+        return true;
+    }
+
+    if (input == "__F5__") // Copy
+    {
+        if (activeFiles.empty())
+            return true;
+        std::filesystem::path source = activeFiles[selectedIndex()].path();
+        std::filesystem::path targetDir = isLeftPanelActive ? right_path : left_path;
+        std::filesystem::path target = targetDir / source.filename();
+        fileSystem->copy_file(source, target);
+        refresh_files();
+        return true;
+    }
+
+    if (input == "__F6__") // Move
+    {
+        if (activeFiles.empty())
+            return true;
+        std::filesystem::path source = activeFiles[selectedIndex()].path();
+        std::filesystem::path targetDir = isLeftPanelActive ? right_path : left_path;
+        std::filesystem::path target = targetDir / source.filename();
+        fileSystem->move_file(source, target);
+        refresh_files();
+        return true;
+    }
+
+    if (input == "__F7__") // New Folder
+    {
+        std::string folderName;
+        std::cout << "\nEnter new folder name: ";
+        std::getline(std::cin, folderName);
+        if (!folderName.empty())
+            fileSystem->create_folder(activePath, folderName);
+        refresh_files();
+        return true;
+    }
+
+    if (input == "__F8__") // Delete
+    {
+        if (activeFiles.empty())
+            return true;
+        std::filesystem::path target = activeFiles[selectedIndex()].path();
+        std::cout << "\nDelete " << target.filename() << "? [y/N]: ";
+        char confirm;
+        std::cin >> confirm;
+        if (confirm == 'y' || confirm == 'Y')
+            fileSystem->delete_file(target);
+        refresh_files();
+        return true;
     }
 
     return false;
 }
 
-int FileManager::handle_index_input(const std::string &input)
+int FileManager::selectedIndex() const
+{
+    return isLeftPanelActive ? selectedLeftIndex : selectedRightIndex;
+}
+
+int FileManager::process_file_selection_input(const std::string &input)
 {
     int index = 0;
     try
