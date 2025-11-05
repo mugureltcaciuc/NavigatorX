@@ -1,6 +1,6 @@
-# NavigatorX
+# SystemFileManagerX
 
-**NavigatorX** is a modern C++17 console-based File Manager for Windows and Linux.
+**SystemFileManagerX** is a modern C++17 console-based File Manager for Windows and Linux.
 It provides a fast, keyboard-driven interface for navigating directories, managing files, and exploring your system in a dual-pane layout.
 ---
 ## Features
@@ -24,12 +24,12 @@ It provides a fast, keyboard-driven interface for navigating directories, managi
 ---
 
 ### Screenshot
-Here's a preview of NavigatorX in action:
-![NavigatorX Screenshot](docs/screenshots/navigatorx_dual_panel.png)
+Here's a preview of SystemFileManagerX in action:
+![SystemFileManagerX Screenshot](docs/screenshots/SystemFileManagerX_dual_panel.png)
 ---
 
 ### Unit Tests
-NavigatorX includes unit tests for core file system operations using Google Test and Google Mock. Here's a snapshot of the test suite in action:
+SystemFileManagerX includes unit tests for core file system operations using Google Test and Google Mock. Here's a snapshot of the test suite in action:
 ![Windows File System Tests](docs/screenshots/windows_file_system_tests.png)
 
 ---
@@ -45,21 +45,21 @@ NavigatorX includes unit tests for core file system operations using Google Test
 
 1. **Clone the repository**
    '''bash
-   git clone https://github.com/mugureltcaciuc/NavigatorX.git
-   cd NavigatorX
+   git clone https://github.com/mugureltcaciuc/SystemFileManagerX.git
+   cd SystemFileManagerX
 
 2. **Build the project**
 
-    g++ -std=c++17 -O2 -o NavigatorX src/*.cpp
+    g++ -std=c++17 -O2 -o SystemFileManagerX src/*.cpp
 
 
 3. **Run the File Manager**
    '''bash
-   ./NavigatorX
+   ./SystemFileManagerX
 
 ## 4. Controls
 
-NavigatorX is fully keyboard-driven. Use the following keys to navigate and manage files:
+SystemFileManagerX is fully keyboard-driven. Use the following keys to navigate and manage files:
 
 - 'TAB' – Switch active panel
 - 'BACKSPACE' – Go up one folder
@@ -77,7 +77,7 @@ NavigatorX is fully keyboard-driven. Use the following keys to navigate and mana
 
 Project Structure
 ```
-NavigatorX/
+SystemFileManagerX/
 |-- src/
 |   |-- main.cpp
 |   |-- FileManager.cpp
@@ -94,7 +94,7 @@ NavigatorX/
 |   |-- googlemock/
 |-- docs/
 |   |-- screenshots/
-|       |-- navigatorx_dual_panel.png
+|       |-- SystemFileManagerX_dual_panel.png
 |       |-- windows_file_system_tests.png
 |-- .vscode/
 |   |-- c_cpp_properties.json

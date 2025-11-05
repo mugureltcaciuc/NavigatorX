@@ -1,7 +1,7 @@
-# NavigatorX Documentation
+# SystemFileManagerX Documentation
 
-Welcome to the **NavigatorX** documentation!  
-**NavigatorX** is a modern C++17 console-based File Manager for Windows and Linux.
+Welcome to the **SystemFileManagerX** documentation!  
+**SystemFileManagerX** is a modern C++17 console-based File Manager for Windows and Linux.
 It provides a fast, keyboard-driven interface for navigating directories, managing files, and exploring your system in a dual-pane layout.
 
 ## Contents

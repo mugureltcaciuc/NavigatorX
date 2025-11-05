@@ -1,6 +1,6 @@
-# Usage Guide - NavigatorX
+# Usage Guide - SystemFileManagerX
 
-NavigatorX is a console-based file manager.
+SystemFileManagerX is a console-based file manager.
 
 1. Start the application from the terminal.
 2. The current directory and its contents are displayed.

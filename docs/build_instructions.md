@@ -1,4 +1,4 @@
-# Build Instructions - NavigatorX
+# Build Instructions - SystemFileManagerX
 
 ## Requirements
 - C++17 compiler (GCC, Clang, or MSVC)
@@ -8,8 +8,8 @@
 ## Build steps
 
 1. Clone the repository:
-   git clone https://github.com/mugureltcaciuc/NavigatorX.git
-   cd NavigatorX
+   git clone https://github.com/mugureltcaciuc/SystemFileManagerX.git
+   cd SystemFileManagerX
 
 2. Create a build directory:
    mkdir build && cd build
@@ -19,5 +19,5 @@
    cmake --build . --config Release
 
 4. Run the program:
-   ./NavigatorX   (Linux)
-   NavigatorX.exe (Windows)
+   ./SystemFileManagerX   (Linux)
+   SystemFileManagerX.exe (Windows)

@@ -1,6 +1,6 @@
-# Architecture Overview - NavigatorX
+# Architecture Overview - SystemFileManagerX
 
-NavigatorX is a console-based file manager for Windows and Linux, written in C++17.
+SystemFileManagerX is a console-based file manager for Windows and Linux, written in C++17.
 Its architecture is modular, with clear separation between core logic, file system abstraction, and user interface rendering.
 
 ---
@@ -90,7 +90,7 @@ UI                 | Colorized output and file highlighting
 
 ## Summary
 
-NavigatorX follows a clean and extensible architecture:
+SystemFileManagerX follows a clean and extensible architecture:
 
 main.cpp
    |
