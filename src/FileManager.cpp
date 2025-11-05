@@ -14,12 +14,13 @@
 #include <windows.h>
 
 #include "FileManager.h"
+#include "Globals.h"
+
 #ifdef _WIN32
 #include "WindowsFileSystem.h"
 #else
 #include "LinuxFileSystem.h"
 #endif
-#include "Globals.h"
 
 #pragma comment(lib, "User32.lib")
 
@@ -27,7 +28,7 @@ using namespace std;
 
 const int panelWidth = 50;
 const int separatorWidth = 2;
-const std::string panelSeparator = " | ";
+const std::string panelSeparator = " || ";
 
 FileManager::FileManager(std::unique_ptr<IFileSystem> fileSystem, const std::string &path)
     : fileSystem(std::move(fileSystem)), left_path(path),
@@ -133,18 +134,40 @@ void FileManager::run()
     refresh_files();
 }
 
+// minimal helper: truncate path to fit width
+static std::string truncatePath(const std::string &path, size_t maxLen)
+{
+    if (path.length() <= maxLen)
+        return path;
+    if (maxLen <= 3)
+        return std::string(maxLen, '.');
+    return "..." + path.substr(path.length() - (maxLen - 3));
+}
+
 void FileManager::drawMenuBar()
 {
     std::vector<std::string> menuItems = {
         "F2 Rename", "F3 View", "F4 Edit", "F5 Copy", "F6 Move", "F7 NewFolder", "F8 Delete", "TAB SwitchPanel", "BS FolderUp", "ESC Quit"};
+    const int totalWidth = 130;
+    const int innerWidth = totalWidth + 2; // matches the top/bottom border width you use
+    const int colWidth = 13;               // you print "|  " + std::setw(8) -> 10 chars per item
 
-    std::cout << "+" << std::string(128, '-') << "+" << std::endl;
+    std::cout << "+" << std::string(innerWidth, '-') << "+" << std::endl;
+
+    int printed = 0;
     for (const auto &item : menuItems)
     {
         std::cout << "|  " << std::setw(8) << std::left << item;
+        printed += colWidth;
     }
-    std::cout << std::endl;
-    std::cout << "+" << std::string(128, '-') << "+" << std::endl;
+
+    // pad remaining space (if any) and print final closing '|' and newline
+    int pad = innerWidth - printed;
+    if (pad < 0)
+        pad = 0;
+    std::cout << std::string(pad + 5, ' ') << "|\n";
+
+    std::cout << "+" << std::string(innerWidth, '=') << "+" << std::endl;
 }
 
 std::string FileManager::formatEntry(size_t index, const std::string &name, const std::string &type,
@@ -170,7 +193,7 @@ void FileManager::drawLeftRightPanels(const std::filesystem::path &leftPath,
     const int typeWidth = 6;  // "[DIR]" or empty
     const int sizeWidth = 10; // e.g. " 20.7 MB"
     const int timeWidth = 16; // e.g. "2025-10-30 19:24"
-    const std::string panelSeparator = " | ";
+    const std::string panelSeparator = " || ";
 
     const int panelWidth = indexWidth + nameWidth + typeWidth + sizeWidth + timeWidth;
 
@@ -264,21 +287,48 @@ void FileManager::drawLeftRightPanels(const std::filesystem::path &leftPath,
     }
 }
 
-// Helper function to draw one panel (used for both left and right)
 void FileManager::drawPanel(const std::filesystem::path &leftPath, const std::filesystem::path &rightPath)
 {
-    std::cout << "Left path: " << left_path << "\\*.*" << "  |  Right path: " << right_path << "\\*.*" << std::endl;
-    std::cout << std::string(130, '-') << std::endl;
+    // Apply theme for entire panel: black text on light gray background
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole,
+                            BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
 
+    const int totalWidth = 130;
+    const int sepWidth = 4; // " || "
+    const int halfWidth = (totalWidth - sepWidth) / 2;
+    const std::string leftLabel = "LEFT: ";
+    const std::string rightLabel = "RIGHT: ";
+
+    std::string leftStr = leftLabel + truncatePath(leftPath.string() + "\\*.*", halfWidth - (int)leftLabel.size());
+    std::string rightStr = rightLabel + truncatePath(rightPath.string() + "\\*.*", halfWidth - (int)rightLabel.size());
+
+    std::ostringstream hdr;
+    hdr << std::left << std::setw(halfWidth) << leftStr
+        << panelSeparator
+        << std::left << std::setw(halfWidth) << rightStr;
+    std::string headerLine = hdr.str();
+
+    // Top border and header
+    std::cout << "+" << std::string(totalWidth + 2, '=') << "+" << std::endl;
+    std::cout << "| " << headerLine << " |" << std::endl;
+    std::cout << "+" << std::string(totalWidth + 2, '-') << "+" << std::endl;
+
+    // draw entries into a buffer and print them
     std::vector<std::string> buffer;
     drawLeftRightPanels(leftPath, rightPath, buffer);
 
     for (const auto &line : buffer)
     {
-        std::cout << line << std::endl;
+        std::cout << "| " << std::left << std::setw(totalWidth) << line << " |" << std::endl;
     }
 
+    // bottom border before menu
+    std::cout << "+" << std::string(totalWidth + 2, '-') << "+" << std::endl;
+
     drawMenuBar();
+
+    // keep console attributes (do not reset) as requested
 }
 
 void FileManager::clear_screen()

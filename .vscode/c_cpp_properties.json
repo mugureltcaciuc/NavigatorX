@@ -3,6 +3,12 @@
         {
             "name": "Win32",
             "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/external/googletest/include",
+                "${workspaceFolder}/external/googlemock/include",
+                "${workspaceFolder}/external/googletest",
+                "${workspaceFolder}/external/googlemock",
                 "${workspaceFolder}/**"
             ],
             "defines": [
