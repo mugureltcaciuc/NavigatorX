@@ -25,7 +25,7 @@ It provides a fast, keyboard-driven interface for navigating directories, managi
 
 ### Screenshot
 Here's a preview of SystemFileManagerX in action:
-![SystemFileManagerX Screenshot](docs/screenshots/SystemFileManagerX_dual_panel.png)
+![SystemFileManagerX Screenshot](docs/screenshots/systemfilemanagerx_dual_panel.png)
 ---
 
 ### Unit Tests
