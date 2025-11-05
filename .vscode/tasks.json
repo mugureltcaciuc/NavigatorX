@@ -11,7 +11,8 @@
                 "/Zc:__cplusplus",
                 "/Zi",
                 "/nologo",
-                "/I", "include",
+                "/I",
+                "include",
                 "src\\*.cpp",
                 "/Fo${workspaceFolder}\\build\\",
                 "/Fe${workspaceFolder}\\NavigatorX.exe"
@@ -27,6 +28,39 @@
                 "isDefault": true
             },
             "detail": "Build NavigatorX from src/ using cl.exe"
+        },
+        {
+            "label": "Build Google Tests",
+            "type": "cppbuild",
+            "command": "cl.exe",
+            "args": [
+                "/std:c++17",
+                "/EHsc",
+                "/Iexternal\\googletest\\include",
+                "/Iexternal\\googletest",
+                "/Iexternal\\googlemock\\include",
+                "/Iexternal\\googlemock",
+                "/Iinclude",
+                "/Fe:WindowsFileSystemTests.exe",
+                "tests\\WindowsFileSystemTests.cpp",
+                "external\\googletest\\src\\gtest_main.cc",
+                "external\\googletest\\src\\gtest-all.cc",
+                "external\\googlemock\\src\\gmock-all.cc",
+                "src\\WindowsFileSystem.cpp",
+                "/link",
+                "/out:${workspaceFolder}\\WindowsFileSystemTests.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Build Google Tests for WindowsFileSystem using cl.exe"
         }
     ]
 }

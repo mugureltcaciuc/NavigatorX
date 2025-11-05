@@ -33,19 +33,21 @@ FileManager::FileManager(std::unique_ptr<IFileSystem> fileSystem, const std::str
 }
 void FileManager::refresh_files()
 {
-    // system("cls"); // Use 'clear' on Linux/macOS
     left_files.clear();
     right_files.clear();
 
-    for (const auto &entry : std::filesystem::directory_iterator(left_path))
-    {
-        left_files.push_back(entry);
-    }
+    left_files = fileSystem->list_files(left_path);
+    right_files = fileSystem->list_files(right_path);
 
-    for (const auto &entry : std::filesystem::directory_iterator(right_path))
-    {
-        right_files.push_back(entry);
-    }
+    // for (const auto &entry : std::filesystem::directory_iterator(left_path))
+    // {
+    //     left_files.push_back(entry);
+    // }
+
+    // for (const auto &entry : std::filesystem::directory_iterator(right_path))
+    // {
+    //     right_files.push_back(entry);
+    // }
 }
 
 // Reads input immediately, returns on Enter or Escape

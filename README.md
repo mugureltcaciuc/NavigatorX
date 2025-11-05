@@ -3,20 +3,23 @@
 **NavigatorX** is a modern C++17 console-based File Manager for Windows and Linux.
 It provides a fast, keyboard-driven interface for navigating directories, managing files, and exploring your system in a dual-pane layout.
 ---
-##  Features
+## Features
 
-- **Written in C++17** using only the standard library
-- **Dual-panel interface** (left and right panels)
-- **Panel switching using TAB**
-- **File operations: copy, delete, mkdir**
-- **Real-time key monitoring with multithreading**
-- **File and directory listing** with clear `[DIR]` markers
--  **Navigation shortcuts**
-   - **Backspace + Enter** --> go up one directory
-   - **ESC** --> exit
-   - **Numeric selection** --> open a file or enter a directory
--  **Automatic screen refresh** when changing directories
--  **Cross-platform** (Windows, Linux – uses `std::filesystem`)
+- Dual-panel interface (left and right)
+- Keyboard navigation
+- File operations using function keys:
+  - F2 - Rename file
+  - F3 - View file content
+  - F4 - Edit file (opens in Notepad)
+  - F5 - Copy file to other panel
+  - F6 - Move file to other panel
+  - F7 - Create new folder
+  - F8 - Delete file
+  - TAB - Switch active panel
+  - BACKSPACE - Go up one folder
+  - ESC - Exit
+-  Automatic screen refresh when changing directories
+-  Cross-platform (Windows, Linux – uses 'std::filesystem')
 
 ---
 
@@ -25,18 +28,23 @@ Here's a preview of NavigatorX in action:
 ![NavigatorX Screenshot](docs/screenshots/navigatorx_dual_panel.png)
 ---
 
+### Unit Tests
+NavigatorX includes unit tests for core file system operations using Google Test and Google Mock. Here's a snapshot of the test suite in action:
+![Windows File System Tests](docs/screenshots/windows_file_system_tests.png)
+
+---
+
 ##   Technologies
 
 - **Language:** C++17
-- **Standard library:** `<filesystem>`, `<thread>`, `<iomanip>`, `<iostream>`
+- **Standard library:** '<filesystem>', '<thread>', '<iomanip>', '<iostream>'
 - **Compiler support:** GCC, Clang, MSVC
 
----
 
 ##  Usage
 
 1. **Clone the repository**
-   ```bash
+   '''bash
    git clone https://github.com/mugureltcaciuc/NavigatorX.git
    cd NavigatorX
 
@@ -46,15 +54,24 @@ Here's a preview of NavigatorX in action:
 
 
 3. **Run the File Manager**
-   ```bash
+   '''bash
    ./NavigatorX
 
-4. **Controls**
-    Key / Command      |  Action
-    Number + Enter     |  Open file / enter directory
-    Backspace + Enter  |  Go up one directory
-    ESC                |  Exit the application
-    Enter              |  Confirm input
+## 4. Controls
+
+NavigatorX is fully keyboard-driven. Use the following keys to navigate and manage files:
+
+- 'TAB' – Switch active panel
+- 'BACKSPACE' – Go up one folder
+- 'ESC' – Exit the application
+- 'F2' – Rename selected file
+- 'F3' – View file content
+- 'F4' – Edit file in Notepad
+- 'F5' – Copy file to other panel
+- 'F6' – Move file to other panel
+- 'F7' – Create new folder
+- 'F8' – Delete selected file
+
 
 5. **Project Structure**
 
@@ -63,18 +80,26 @@ Here's a preview of NavigatorX in action:
     |    |-- main.cpp
     |    |-- FileManager.cpp
     |    |-- FileManager.h
+    |    |-- FileSystemFactory.cpp
+    |    |-- FileSystemFactory.h
+    |    |-- WindowsFileSystem.cpp
+    |    |-- WindowsFileSystem.h
+    |    |-- IFileSystem.h
     |    |-- ...
     |-- README.md
     |-- LICENSE
 
+
 6. **Planned Improvements**
 
-     File operations (copy, move, delete)
-     Color themes for directory panels
-     File preview mode
-     Configurable key bindings
-     Command-line integration
-     Persistent settings and bookmarks
+    - Color themes for directory panels
+    - Command-line integration
+    - Add support for Linux and cross-platform compatibility
+    - Implement file preview with paging and syntax highlighting
+    - Add customizable key bindings
+    - Improve error handling and user feedback
+    - Add search functionality within panels
+    - Support for renaming folders and batch operations
 
 7.  **License**
 
