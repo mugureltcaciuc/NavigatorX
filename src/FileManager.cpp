@@ -14,7 +14,11 @@
 #include <windows.h>
 
 #include "FileManager.h"
+#ifdef _WIN32
 #include "WindowsFileSystem.h"
+#else
+#include "LinuxFileSystem.h"
+#endif
 #include "Globals.h"
 
 #pragma comment(lib, "User32.lib")
@@ -38,16 +42,6 @@ void FileManager::refresh_files()
 
     left_files = fileSystem->list_files(left_path);
     right_files = fileSystem->list_files(right_path);
-
-    // for (const auto &entry : std::filesystem::directory_iterator(left_path))
-    // {
-    //     left_files.push_back(entry);
-    // }
-
-    // for (const auto &entry : std::filesystem::directory_iterator(right_path))
-    // {
-    //     right_files.push_back(entry);
-    // }
 }
 
 // Reads input immediately, returns on Enter or Escape

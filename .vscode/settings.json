@@ -64,6 +64,21 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "random": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "any": "cpp",
+        "array": "cpp",
+        "condition_variable": "cpp",
+        "csignal": "cpp",
+        "deque": "cpp",
+        "functional": "cpp",
+        "map": "cpp",
+        "mutex": "cpp",
+        "set": "cpp",
+        "span": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "variant": "cpp",
+        "xhash": "cpp",
+        "xtree": "cpp"
     }
 }

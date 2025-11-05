@@ -30,7 +30,7 @@
             "detail": "Build NavigatorX from src/ using cl.exe"
         },
         {
-            "label": "Build Google Tests",
+            "label": "Build Google Tests (WindowsFileSystem)",
             "type": "cppbuild",
             "command": "cl.exe",
             "args": [
