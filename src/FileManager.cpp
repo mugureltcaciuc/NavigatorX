@@ -509,7 +509,15 @@ bool FileManager::process_navigation_input(const std::string &input)
         char confirm;
         std::cin >> confirm;
         if (confirm == 'y' || confirm == 'Y')
-            fileSystem->delete_file(target);
+            try
+            {
+                std::uintmax_t count = std::filesystem::remove_all(target);
+                std::cout << "Deleted " << count << " item(s).\n";
+            }
+            catch (const std::filesystem::filesystem_error &e)
+            {
+                std::cerr << "Error deleting: " << e.what() << '\n';
+            }
         refresh_files();
         return true;
     }
